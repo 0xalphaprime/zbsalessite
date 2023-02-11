@@ -1,0 +1,8 @@
+from django.shortcuts import render
+
+# Create your views here.
+def index(request):
+    return render(request, 'sales/index.html')
+
+def add_sale(request):
+    return render(request, 'sales/add_sale.html')
