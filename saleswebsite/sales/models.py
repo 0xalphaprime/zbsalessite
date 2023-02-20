@@ -8,7 +8,7 @@ class Customer(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
-    zimmer_id = models.PositiveIntegerField()
+    zimmer_cust_no = models.PositiveIntegerField()
     name = models.CharField(max_length=60)
 
 class Category(models.Model):
@@ -34,6 +34,12 @@ class Invoice(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='invoices')
     product_on_inv = models.ManyToManyField(Product, through='InvoiceProduct')
 
+    def total(self):
+        return int(sum([ip.extended_price for ip in self.invoiceproduct_set.all()]))
+
+    def __str__(self):
+        return f"{self.inv_no} ({self.customer.name})"
+
 class InvoiceProduct(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -42,12 +48,14 @@ class InvoiceProduct(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     price = models.IntegerField()
     qty = models.IntegerField()
-    commission_rate = models.FloatField()
+    commission_rate = models.IntegerField()
+    extended_price = models.FloatField()
+    commission = models.FloatField()
 
-    @property
-    def extended_price(self):
-        return self.price * self.qty
-    
-    @property
-    def commission(self):
-        return self.price * self.commission
+    def save(self, *args, **kwargs):
+        self.extended_price = float(self.price) * float(self.qty)
+        self.commission = float(self.extended_price) * float(self.commission_rate) / 100
+        super().save(*args, **kwargs)
+
+# if i wanted to include customer_po, i would need to creat a new table. it would be a one to many field. 
+# one po can have multiple invoices, but one invoice will never have multiple POs 

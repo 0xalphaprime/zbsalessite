@@ -1,0 +1,29 @@
+{% extends 'base.html' %} {% block title %}Customers{% endblock %}
+<div></div>
+{% block content %}
+<h2 class="h5 mb-2">Customers</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Account</th>
+      <th>Customer Number</th>
+      <th>Created At</th>
+      <th>Modified At</th>
+      <th>ID</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for customer in customers %}
+    <tr>
+      <td>{{ customer.name }}</td>
+      <td>{{ customer.zimmer_id }}</td>
+      <td>{{ customer.created_at }}</td>
+      <td>{{ customer.modified_at }}</td>
+      <td><a href="{% url 'customer_detail' customer.id %}">Details</a></td>
+      <td>{{ customer.id }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock content %}
